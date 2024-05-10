@@ -102,3 +102,4 @@
 /Users/santiagopiedrafita/Documents/Projects/PromiedosApi/obj/Debug/net8.0/PromiedosApi.pdb
 /Users/santiagopiedrafita/Documents/Projects/PromiedosApi/obj/Debug/net8.0/PromiedosApi.genruntimeconfig.cache
 /Users/santiagopiedrafita/Documents/Projects/PromiedosApi/obj/Debug/net8.0/ref/PromiedosApi.dll
+/Users/santiagopiedrafita/Documents/Projects/PromiedosApi/obj/Debug/net8.0/PromiedosApi.sourcelink.json
