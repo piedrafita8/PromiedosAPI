@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.VisualBasic;
 using PromiedosApi.Models;
 
 namespace PromiedosApi.Controllers
@@ -67,11 +68,26 @@ namespace PromiedosApi.Controllers
 
         // POST: Stadium
         [HttpPost]
-        public async Task<ActionResult<Stadium>> PostStadium(Stadium stadium)
+        public async Task<ActionResult<Stadium>> PostStadium(string stadiumName, long cityId)
         {
+            var existingCity = await _context.Cities.FindAsync(cityId);
+
+            if (existingCity == null)
+            {
+                return BadRequest("La ciudad especificada no existe.");
+            }
+
+            var stadiumsCount = await _context.Stadiums.CountAsync();
+            var stadium = new Stadium
+            {
+                StadiumName = stadiumName,
+                City = existingCity,
+                Id = stadiumsCount + 1,
+            };
+            
             _context.Stadiums.Add(stadium);
             await _context.SaveChangesAsync();
-
+            
             return CreatedAtAction(nameof(GetStadium), new { id = stadium.Id }, stadium);
         }
 
