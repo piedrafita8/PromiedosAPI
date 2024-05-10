@@ -16,14 +16,14 @@ namespace PromiedosApi.Controllers
 
         // GET: City
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<City>>> Index()
+        public async Task<ActionResult<IEnumerable<City>>> GetCities()
         {
             return await _context.Cities.ToListAsync();
         }
 
         // GET: City/5
         [HttpGet("{id}")]
-        public async Task<ActionResult<City>> Details(long? id)
+        public async Task<ActionResult<City>> GetCity(long? id)
         {
             if (id == null)
             {
@@ -48,7 +48,7 @@ namespace PromiedosApi.Controllers
             {
                 _context.Add(city);
                 await _context.SaveChangesAsync();
-                return RedirectToAction(nameof(Index));
+                return RedirectToAction(nameof(GetCities));
             }
             return city;
         }
@@ -87,7 +87,7 @@ namespace PromiedosApi.Controllers
 
         // DELETE: City/5
         [HttpDelete("{id}")]
-        public async Task<ActionResult<City>> DeleteConfirmed(long id)
+        public async Task<ActionResult<City>> DeleteCity(long id)
         {
             var city = await _context.Cities.FindAsync(id);
             _context.Cities.Remove(city);
