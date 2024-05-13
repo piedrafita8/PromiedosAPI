@@ -13,7 +13,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("PromiedosApi")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+5a28ff3923b12ce402b64790668028e0f60dbc75")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+539284dcd9f6d409c78efbbdb2dd21d3ef2dbeca")]
 [assembly: System.Reflection.AssemblyProductAttribute("PromiedosApi")]
 [assembly: System.Reflection.AssemblyTitleAttribute("PromiedosApi")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]

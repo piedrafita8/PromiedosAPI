@@ -67,8 +67,31 @@ namespace PromiedosApi.Controllers
 
         // POST: Team
         [HttpPost]
-        public async Task<ActionResult<Team>> PostTeam(Team team)
+        public async Task<ActionResult<Team>> PostTeam(long stadiumId, long cityId, string teamName)
         {
+            
+            var existingCity = await _context.Cities.FindAsync(cityId);
+            var existingStadium = await _context.Stadiums.FindAsync(stadiumId);
+
+            if (existingCity == null )
+            {
+                return BadRequest("La ciudad especificada no existe.");
+            }
+            if ( existingStadium == null)
+            {
+                return BadRequest("El estadio especificado no existe.");
+            }
+
+            var teamsCount = await _context.Teams.CountAsync();
+
+            var team = new Team
+            {
+                TeamName = teamName,
+                City = existingCity,
+                Stadium = existingStadium,
+                Id = teamsCount + 1,
+            };
+                
             _context.Teams.Add(team);
             await _context.SaveChangesAsync();
 
