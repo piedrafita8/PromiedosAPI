@@ -2,7 +2,7 @@ namespace PromiedosApi.Models;
 
 public class Match : BaseEntity
 {
-    public DateTime MatchDate { get; set; } 
+    public DateTime MatchDate { get; set; } = DateTime.UtcNow;
     public Team HomeTeam { get; set; }
     public Team AwayTeam { get; set; }
     public int HomeGoals { get; set; }
@@ -11,10 +11,9 @@ public class Match : BaseEntity
 
     public Match() { }
 
-    public Match(DateTime matchDate, Team homeTeam, Team awayTeam, int homeGoals, int awayGoals,
+    public Match(Team homeTeam, Team awayTeam, int homeGoals, int awayGoals,
         Tournament tournament)
     {
-        MatchDate = matchDate;
         HomeTeam = homeTeam;
         AwayTeam = awayTeam;
         HomeGoals = homeGoals;
