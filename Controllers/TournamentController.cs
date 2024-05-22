@@ -102,7 +102,7 @@ namespace PromiedosApi.Controllers
         }
 
         // PUT: Tournament/AddTeam/5
-        [HttpPut("AddTeam/{id}")]
+        [HttpPut("{id}/AddTeam/{teamId}")]
         public async Task<IActionResult> AddTeamToTournament(long id, long teamId)
         {
             var tournament = await _context.Tournaments.Include(t => t.Teams).FirstOrDefaultAsync(t => t.Id == id);
@@ -129,7 +129,7 @@ namespace PromiedosApi.Controllers
         }
 
         // DELETE: Tournament/RemoveTeam/5
-        [HttpDelete("RemoveTeam/{id}")]
+        [HttpDelete("{id}/RemoveTeam/{teamId}")]
         public async Task<IActionResult> RemoveTeamFromTournament(long id, long teamId)
         {
             var tournament = await _context.Tournaments.Include(t => t.Teams).FirstOrDefaultAsync(t => t.Id == id);

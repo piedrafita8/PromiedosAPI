@@ -67,12 +67,11 @@ namespace PromiedosApi.Controllers
 
         // POST: Match
         [HttpPost]
-        public async Task<ActionResult<Match>> PostMatch(long homeTeamId, long awayTeamId,
-            int homeGoals, int awayGoals, long tournamentId)
+        public async Task<ActionResult<Match>> PostMatch([FromBody] MatchDto matchDto)
         {
-            var homeTeam = await _context.Teams.FindAsync(homeTeamId);
-            var awayTeam = await _context.Teams.FindAsync(awayTeamId);
-            var tournament = await _context.Tournaments.FindAsync(tournamentId);
+            var homeTeam = await _context.Teams.FindAsync(matchDto.HomeTeamId);
+            var awayTeam = await _context.Teams.FindAsync(matchDto.AwayTeamId);
+            var tournament = await _context.Tournaments.FindAsync(matchDto.TournamentId);
 
             if (homeTeam == null || awayTeam == null || tournament == null)
             {
@@ -83,8 +82,8 @@ namespace PromiedosApi.Controllers
             {
                 HomeTeam = homeTeam,
                 AwayTeam = awayTeam,
-                HomeGoals = homeGoals,
-                AwayGoals = awayGoals,
+                HomeGoals = matchDto.HomeGoals,
+                AwayGoals = matchDto.AwayGoals,
                 Tournament = tournament
             };
 
@@ -93,6 +92,7 @@ namespace PromiedosApi.Controllers
 
             return CreatedAtAction(nameof(GetMatch), new { id = match.Id }, match);
         }
+
 
         // DELETE: Match/5
         [HttpDelete("{id}")]
