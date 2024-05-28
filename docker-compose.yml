@@ -1,0 +1,16 @@
+version: '3.6'
+
+services:
+  supabase-db:
+    image: supabase/postgres:latest
+    ports:
+      - "5432:5432"
+    environment:
+      POSTGRES_PASSWORD: PromiedosApp
+      POSTGRES_DB: postgres
+      POSTGRES_USER: postgres.qiwvdvfnwndyyrxyikjy
+    volumes:
+      - supabase-data:/var/lib/postgresql/data
+
+volumes:
+  supabase-data:
