@@ -67,9 +67,9 @@ namespace PromiedosApi.Controllers
 
         // POST: Stadium
         [HttpPost]
-        public async Task<ActionResult<Stadium>> PostStadium(string stadiumName, long cityId)
+        public async Task<ActionResult<Stadium>> PostStadium([FromBody] StadiumDto stadiumDto)
         {
-            var existingCity = await _context.Cities.FindAsync(cityId);
+            var existingCity = await _context.Cities.FindAsync(stadiumDto.CityId);
 
             if (existingCity == null)
             {
@@ -79,7 +79,7 @@ namespace PromiedosApi.Controllers
             var stadiumsCount = await _context.Stadiums.CountAsync();
             var stadium = new Stadium
             {
-                StadiumName = stadiumName,
+                StadiumName = stadiumDto.StadiumName,
                 City = existingCity,
                 Id = stadiumsCount + 1,
             };
