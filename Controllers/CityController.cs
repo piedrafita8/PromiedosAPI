@@ -42,8 +42,17 @@ namespace PromiedosApi.Controllers
 
         // POST: City/Create
         [HttpPost]
-        public async Task<ActionResult<City>> PostCity([Bind("Id,CityName,Province")] City city)
+        public async Task<ActionResult<City>> PostCity([FromBody] CityDto cityDto)
         {
+            var citiesCount = await _context.Cities.CountAsync();
+
+            var city = new City
+            {
+                CityName = cityDto.CityName,
+                Province = cityDto.Province,
+                Id = citiesCount + 1,
+            };
+            
             if (ModelState.IsValid)
             {
                 _context.Add(city);
