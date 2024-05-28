@@ -68,15 +68,15 @@ namespace PromiedosApi.Controllers
 
         // POST: Tournament
         [HttpPost]
-        public async Task<ActionResult<Tournament>> PostTournament(string tournamentName, string format, int year)
+        public async Task<ActionResult<Tournament>> PostTournament([FromBody] TournamentDto dto)
         {
             var tournamentsCount = await _context.Tournaments.CountAsync();
             var tournament = new Tournament
             {
-                TournamentName = tournamentName,
+                TournamentName = dto.TournamentName,
                 Id = tournamentsCount + 1,
-                Format = format,
-                Year = year,
+                Format = dto.Format,
+                Year = dto.Year,
                 Teams = new List<Team>()
             };
             _context.Tournaments.Add(tournament);
