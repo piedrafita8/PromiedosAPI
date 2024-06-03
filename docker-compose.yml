@@ -6,9 +6,9 @@ services:
     ports:
       - "5432:5432"
     environment:
-      POSTGRES_PASSWORD: PromiedosApp
+      POSTGRES_PASSWORD: pr0m13d0s4p1
       POSTGRES_DB: postgres
-      POSTGRES_USER: postgres.qiwvdvfnwndyyrxyikjy
+      POSTGRES_USER: postgres.nqeoskqtocqcyrfdquyw
     volumes:
       - supabase-data:/var/lib/postgresql/data
 

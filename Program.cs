@@ -1,5 +1,9 @@
-using PromiedosApi.Models;
+using PromiedosApi.Infrastructure.Context;
 using Microsoft.EntityFrameworkCore;
+using PromiedosApi.Application.Interfaces;
+using PromiedosApi.Application.Services;
+using PromiedosApi.Domain.Interfaces;
+using PromiedosApi.Infrastructure.Repositories;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -13,6 +17,10 @@ builder.Services.AddDbContext<PromiedosContext>(options =>
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
+
+// Register application services
+builder.Services.AddScoped<ICityRepository, CityRepository>();
+builder.Services.AddScoped<ICityService, CityService>();
 
 var app = builder.Build();
 
