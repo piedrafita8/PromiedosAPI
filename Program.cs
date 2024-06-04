@@ -4,6 +4,7 @@ using PromiedosApi.Application.Interfaces;
 using PromiedosApi.Application.Services;
 using PromiedosApi.Domain.Interfaces;
 using PromiedosApi.Infrastructure.Repositories;
+using PromiedosApi.Infrastructure.Interfaces;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -21,6 +22,9 @@ builder.Services.AddSwaggerGen();
 // Register application services
 builder.Services.AddScoped<ICityRepository, CityRepository>();
 builder.Services.AddScoped<ICityService, CityService>();
+
+builder.Services.AddScoped<IStadiumRepository, StadiumRepository>();
+builder.Services.AddScoped<IStadiumService, StadiumService>();
 
 var app = builder.Build();
 
