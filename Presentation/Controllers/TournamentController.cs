@@ -1,160 +1,83 @@
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
-using PromiedosApi.Domain.Models;
-using PromiedosApi.Infrastructure.Context;
 using PromiedosApi.Application.Dtos;
+using PromiedosApi.Application.Interfaces;
 
-namespace PromiedosApi.Controllers
+namespace PromiedosApi.Presentation.Controllers
 {
-    [Route("Tournament")]
+    [Route("api/[controller]")]
     [ApiController]
     public class TournamentController : ControllerBase
     {
-        private readonly PromiedosContext _context;
+        private readonly ITournamentService _tournamentService;
 
-        public TournamentController(PromiedosContext context)
+        public TournamentController(ITournamentService tournamentService)
         {
-            _context = context;
+            _tournamentService = tournamentService;
         }
 
-        // GET: Tournament
+        // GET: api/Tournament
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<Tournament>>> GetTournaments()
+        public async Task<ActionResult<IEnumerable<TournamentDto>>> GetTournaments()
         {
-            return await _context.Tournaments.ToListAsync();
+            var tournaments = await _tournamentService.GetTournamentsAsync();
+            return Ok(tournaments);
         }
 
-        // GET: Tournament/5
+        // GET: api/Tournament/5
         [HttpGet("{id}")]
-        public async Task<ActionResult<Tournament>> GetTournament(long id)
+        public async Task<ActionResult<TournamentDto>> GetTournament(long id)
         {
-            var tournament = await _context.Tournaments.FindAsync(id);
-
+            var tournament = await _tournamentService.GetTournamentByIdAsync(id);
             if (tournament == null)
             {
                 return NotFound();
             }
-
-            return tournament;
+            return Ok(tournament);
         }
 
-        // PUT: Tournament/5
-        [HttpPut("{id}")]
-        public async Task<ActionResult<Tournament>> PutTournament(long id, Tournament tournament)
+        // POST: api/Tournament
+        [HttpPost]
+        public async Task<ActionResult<TournamentDto>> PostTournament([FromBody] TournamentDto dto)
         {
-            if (id != tournament.Id)
+            var newTournament = await _tournamentService.CreateTournamentAsync(dto);
+            return CreatedAtAction(nameof(GetTournament), new { id = newTournament.Id }, newTournament);
+        }
+
+        // PUT: api/Tournament/5
+        [HttpPut("{id}")]
+        public async Task<IActionResult> PutTournament(long id, [FromBody] TournamentDto dto)
+        {
+            if (id != dto.Id)
             {
                 return BadRequest();
             }
 
-            _context.Entry(tournament).State = EntityState.Modified;
-
-            try
-            {
-                await _context.SaveChangesAsync();
-            }
-            catch (DbUpdateConcurrencyException)
-            {
-                if (!TournamentExists(id))
-                {
-                    return NotFound();
-                }
-                else
-                {
-                    throw;
-                }
-            }
-
+            await _tournamentService.UpdateTournamentAsync(dto);
             return NoContent();
         }
 
-        // POST: Tournament
-        [HttpPost]
-        public async Task<ActionResult<Tournament>> PostTournament([FromBody] TournamentDto dto)
-        {
-            var tournamentsCount = await _context.Tournaments.CountAsync();
-            var tournament = new Tournament
-            {
-                TournamentName = dto.TournamentName,
-                Id = tournamentsCount + 1,
-                Format = dto.Format,
-                Year = dto.Year,
-                Teams = new List<Team>()
-            };
-            _context.Tournaments.Add(tournament);
-            await _context.SaveChangesAsync();
-
-            return CreatedAtAction(nameof(GetTournament), new { id = tournament.Id }, tournament);
-        }
-
-        // DELETE: Tournament/5
+        // DELETE: api/Tournament/5
         [HttpDelete("{id}")]
-        public async Task<ActionResult<Tournament>> DeleteTournament(long id)
+        public async Task<IActionResult> DeleteTournament(long id)
         {
-            var tournament = await _context.Tournaments.FindAsync(id);
-            if (tournament == null)
-            {
-                return NotFound();
-            }
-
-            _context.Tournaments.Remove(tournament);
-            await _context.SaveChangesAsync();
-
-            return tournament;
+            await _tournamentService.DeleteTournamentAsync(id);
+            return NoContent();
         }
 
-        // PUT: Tournament/AddTeam/5
+        // PUT: api/Tournament/AddTeam/5
         [HttpPut("{id}/AddTeam/{teamId}")]
         public async Task<IActionResult> AddTeamToTournament(long id, long teamId)
         {
-            var tournament = await _context.Tournaments.Include(t => t.Teams).FirstOrDefaultAsync(t => t.Id == id);
-            if (tournament == null)
-            {
-                return NotFound("Tournament not found.");
-            }
-
-            var team = await _context.Teams.FindAsync(teamId);
-            if (team == null)
-            {
-                return NotFound("Team not found.");
-            }
-
-            if (tournament.Teams.Any(t => t.Id == teamId))
-            {
-                return BadRequest("Team already added to the tournament.");
-            }
-
-            tournament.Teams.Add(team);
-            await _context.SaveChangesAsync();
-
+            await _tournamentService.AddTeamToTournamentAsync(id, teamId);
             return NoContent();
         }
 
-        // DELETE: Tournament/RemoveTeam/5
+        // DELETE: api/Tournament/RemoveTeam/5
         [HttpDelete("{id}/RemoveTeam/{teamId}")]
         public async Task<IActionResult> RemoveTeamFromTournament(long id, long teamId)
         {
-            var tournament = await _context.Tournaments.Include(t => t.Teams).FirstOrDefaultAsync(t => t.Id == id);
-            if (tournament == null)
-            {
-                return NotFound("Tournament not found.");
-            }
-
-            var team = tournament.Teams.FirstOrDefault(t => t.Id == teamId);
-            if (team == null)
-            {
-                return NotFound("Team not found in the tournament.");
-            }
-
-            tournament.Teams.Remove(team);
-            await _context.SaveChangesAsync();
-
+            await _tournamentService.RemoveTeamFromTournamentAsync(id, teamId);
             return NoContent();
-        }
-
-        private bool TournamentExists(long id)
-        {
-            return _context.Tournaments.Any(e => e.Id == id);
         }
     }
 }

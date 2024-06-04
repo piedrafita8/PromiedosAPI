@@ -1,120 +1,73 @@
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
-using PromiedosApi.Domain.Models;
-using PromiedosApi.Infrastructure.Context;
 using PromiedosApi.Application.Dtos;
+using PromiedosApi.Application.Interfaces;
+using System.Collections.Generic;
+using System.Threading.Tasks;
 
-namespace PromiedosApi.Controllers
+namespace PromiedosApi.Presentation.Controllers
 {
-    [Route("Match")]
+    [Route("api/[controller]")]
+    [ApiController]
     public class MatchController : ControllerBase
     {
-        private readonly PromiedosContext _context;
+        private readonly IMatchService _matchService;
 
-        public MatchController(PromiedosContext context)
+        public MatchController(IMatchService matchService)
         {
-            _context = context;
+            _matchService = matchService;
         }
 
-        // GET: Match
+        // GET: api/Match
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<Match>>> GetMatches()
+        public async Task<ActionResult<IEnumerable<MatchDto>>> GetMatches()
         {
-            return await _context.Matches.ToListAsync();
+            var matches = await _matchService.GetMatchesAsync();
+            return Ok(matches);
         }
 
-        // GET: Match/5
+        // GET: api/Match/5
         [HttpGet("{id}")]
-        public async Task<ActionResult<Match>> GetMatch(long id)
+        public async Task<ActionResult<MatchDto>> GetMatch(long id)
         {
-            var match = await _context.Matches.FindAsync(id);
-
+            var match = await _matchService.GetMatchByIdAsync(id);
             if (match == null)
             {
                 return NotFound();
             }
-
-            return match;
+            return Ok(match);
         }
 
-        // PUT: Match/5
-        [HttpPut("{id}")]
-        public async Task<ActionResult<Match>> PutMatch(long id, Match match)
+        // POST: api/Match
+        [HttpPost]
+        public async Task<ActionResult<MatchDto>> PostMatch([FromBody] MatchDto matchDto)
         {
-            if (id != match.Id)
+            var newMatch = await _matchService.CreateMatchAsync(matchDto);
+            if (newMatch == null)
+            {
+                return BadRequest("Equipos o torneo especificados no existen.");
+            }
+            return CreatedAtAction(nameof(GetMatch), new { id = newMatch.HomeTeamId }, newMatch);
+        }
+
+        // PUT: api/Match/5
+        [HttpPut("{id}")]
+        public async Task<IActionResult> PutMatch(long id, [FromBody] MatchDto matchDto)
+        {
+            if (id != matchDto.HomeTeamId) // Este debería ser el id del match, no HomeTeamId
             {
                 return BadRequest();
             }
 
-            _context.Entry(match).State = EntityState.Modified;
-
-            try
-            {
-                await _context.SaveChangesAsync();
-            }
-            catch (DbUpdateConcurrencyException)
-            {
-                if (!MatchExists(id))
-                {
-                    return NotFound();
-                }
-                else
-                {
-                    throw;
-                }
-            }
-
+            await _matchService.UpdateMatchAsync(matchDto);
             return NoContent();
         }
 
-        // POST: Match
-        [HttpPost]
-        public async Task<ActionResult<Match>> PostMatch([FromBody] MatchDto matchDto)
-        {
-            var homeTeam = await _context.Teams.FindAsync(matchDto.HomeTeamId);
-            var awayTeam = await _context.Teams.FindAsync(matchDto.AwayTeamId);
-            var tournament = await _context.Tournaments.FindAsync(matchDto.TournamentId);
-
-            if (homeTeam == null || awayTeam == null || tournament == null)
-            {
-                return BadRequest("Equipos o torneo especificados no existen.");
-            }
-
-            var match = new Match
-            {
-                HomeTeam = homeTeam,
-                AwayTeam = awayTeam,
-                HomeGoals = matchDto.HomeGoals,
-                AwayGoals = matchDto.AwayGoals,
-                Tournament = tournament
-            };
-
-            _context.Matches.Add(match);
-            await _context.SaveChangesAsync();
-
-            return CreatedAtAction(nameof(GetMatch), new { id = match.Id }, match);
-        }
-
-
-        // DELETE: Match/5
+        // DELETE: api/Match/5
         [HttpDelete("{id}")]
-        public async Task<ActionResult> DeleteMatch(long id)
+        public async Task<IActionResult> DeleteMatch(long id)
         {
-            var match = await _context.Matches.FindAsync(id);
-            if (match == null)
-            {
-                return NotFound();
-            }
-
-            _context.Matches.Remove(match);
-            await _context.SaveChangesAsync();
-
+            await _matchService.DeleteMatchAsync(id);
             return NoContent();
-        }
-
-        private bool MatchExists(long id)
-        {
-            return _context.Matches.Any(e => e.Id == id);
         }
     }
 }

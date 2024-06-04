@@ -5,4 +5,5 @@ public class TournamentDto
     public string TournamentName { get; set; }
     public string Format { get; set; }
     public int Year { get; set; }
+    public int Id { get; set; }
 }
