@@ -1,7 +1,7 @@
 using PromiedosApi.Application.Dtos;
 using PromiedosApi.Application.Interfaces;
 using PromiedosApi.Domain.Models;
-using PromiedosApi.Domain.Interfaces;
+using PromiedosApi.Infrastructure.Interfaces;
 
 namespace PromiedosApi.Application.Services
 {

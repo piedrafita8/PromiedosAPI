@@ -2,7 +2,6 @@ using PromiedosApi.Infrastructure.Context;
 using Microsoft.EntityFrameworkCore;
 using PromiedosApi.Application.Interfaces;
 using PromiedosApi.Application.Services;
-using PromiedosApi.Domain.Interfaces;
 using PromiedosApi.Infrastructure.Repositories;
 using PromiedosApi.Infrastructure.Interfaces;
 
@@ -25,6 +24,9 @@ builder.Services.AddScoped<ICityService, CityService>();
 
 builder.Services.AddScoped<IStadiumRepository, StadiumRepository>();
 builder.Services.AddScoped<IStadiumService, StadiumService>();
+
+builder.Services.AddScoped<ITeamRepository, TeamRepository>();
+builder.Services.AddScoped<ITeamService, TeamService>();
 
 var app = builder.Build();
 

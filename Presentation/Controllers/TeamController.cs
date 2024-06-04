@@ -1,124 +1,71 @@
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
-using PromiedosApi.Domain.Models;
-using PromiedosApi.Infrastructure.Context;
 using PromiedosApi.Application.Dtos;
+using PromiedosApi.Application.Interfaces;
 
-namespace PromiedosApi.Controllers
+namespace PromiedosApi.Presentation.Controllers
 {
-    [Route("Team")]
+    [Route("api/[controller]")]
+    [ApiController]
     public class TeamController : ControllerBase
     {
-        private readonly PromiedosContext _context;
+        private readonly ITeamService _teamService;
 
-        public TeamController(PromiedosContext context)
+        public TeamController(ITeamService teamService)
         {
-            _context = context;
+            _teamService = teamService;
         }
 
-        // GET: Team
+        // GET: api/Team
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<Team>>> GetTeams()
+        public async Task<ActionResult<IEnumerable<TeamDto>>> GetTeams()
         {
-            return await _context.Teams.ToListAsync();
+            var teams = await _teamService.GetTeamsAsync();
+            return Ok(teams);
         }
 
-        // GET: Team/5
+        // GET: api/Team/5
         [HttpGet("{id}")]
-        public async Task<ActionResult<Team>> GetTeam(long id)
+        public async Task<ActionResult<TeamDto>> GetTeam(long id)
         {
-            var team = await _context.Teams.FindAsync(id);
-
+            var team = await _teamService.GetTeamByIdAsync(id);
             if (team == null)
             {
                 return NotFound();
             }
-
-            return team;
+            return Ok(team);
         }
 
-        // PUT: Team/5
-        [HttpPut("{id}")]
-        public async Task<ActionResult<Team>> PutTeam(long id, Team team)
+        // POST: api/Team
+        [HttpPost]
+        public async Task<ActionResult<TeamDto>> PostTeam([FromBody] TeamDto teamDto)
         {
-            if (id != team.Id)
+            var newTeam = await _teamService.CreateTeamAsync(teamDto);
+            if (newTeam == null)
+            {
+                return BadRequest("City or Stadium does not exist.");
+            }
+            return CreatedAtAction(nameof(GetTeam), new { id = newTeam.CityId }, newTeam);
+        }
+
+        // PUT: api/Team/5
+        [HttpPut("{id}")]
+        public async Task<IActionResult> PutTeam(long id, [FromBody] TeamDto teamDto)
+        {
+            if (id != teamDto.CityId)
             {
                 return BadRequest();
             }
 
-            _context.Entry(team).State = EntityState.Modified;
-
-            try
-            {
-                await _context.SaveChangesAsync();
-            }
-            catch (DbUpdateConcurrencyException)
-            {
-                if (!TeamExists(id))
-                {
-                    return NotFound();
-                }
-                else
-                {
-                    throw;
-                }
-            }
-
+            await _teamService.UpdateTeamAsync(teamDto);
             return NoContent();
         }
 
-        // POST: Team
-        [HttpPost]
-        public async Task<ActionResult<Team>> PostTeam([FromBody] TeamDto teamDto)
-        {
-            
-            var existingCity = await _context.Cities.FindAsync(teamDto.CityId);
-            var existingStadium = await _context.Stadiums.FindAsync(teamDto.StadiumId);
-
-            if (existingCity == null )
-            {
-                return BadRequest("La ciudad especificada no existe.");
-            }
-            if ( existingStadium == null)
-            {
-                return BadRequest("El estadio especificado no existe.");
-            }
-
-            var teamsCount = await _context.Teams.CountAsync();
-
-            var team = new Team
-            {
-                TeamName = teamDto.TeamName,
-                City = existingCity,
-                Stadium = existingStadium,
-                Id = teamsCount + 1,
-            };
-                
-            _context.Teams.Add(team);
-            await _context.SaveChangesAsync();
-
-            return CreatedAtAction(nameof(GetTeam), new { id = team.Id }, team);
-        }
-
-        // DELETE: Team/5
+        // DELETE: api/Team/5
         [HttpDelete("{id}")]
-        public async Task<ActionResult> DeleteTeam(long id)
+        public async Task<IActionResult> DeleteTeam(long id)
         {
-            var team = await _context.Teams.FindAsync(id);
-            if (team == null)
-            {
-                return NotFound();
-            }
-
-            _context.Teams.Remove(team);
-            await _context.SaveChangesAsync();
-
+            await _teamService.DeleteTeamAsync(id);
             return NoContent();
-        }
-
-        private bool TeamExists(long id)
-        {
-            return _context.Teams.Any(e => e.Id == id);
         }
     }
 }

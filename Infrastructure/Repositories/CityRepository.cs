@@ -1,6 +1,6 @@
 using Microsoft.EntityFrameworkCore;
 using PromiedosApi.Domain.Models;
-using PromiedosApi.Domain.Interfaces;
+using PromiedosApi.Infrastructure.Interfaces;
 using PromiedosApi.Infrastructure.Context;
 using PromiedosApi.Infrastructure.Exceptions;
 

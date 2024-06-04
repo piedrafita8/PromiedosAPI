@@ -1,6 +1,6 @@
 using PromiedosApi.Domain.Models;
 
-namespace PromiedosApi.Domain.Interfaces
+namespace PromiedosApi.Infrastructure.Interfaces
 {
     public interface ICityRepository
     {
