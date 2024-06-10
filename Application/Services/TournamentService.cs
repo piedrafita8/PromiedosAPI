@@ -21,6 +21,7 @@ namespace PromiedosApi.Application.Services
             var tournaments = await _tournamentRepository.GetAllAsync();
             return tournaments.Select(t => new TournamentDto
             {
+                Id = (int)t.Id,
                 TournamentName = t.TournamentName,
                 Format = t.Format,
                 Year = t.Year
@@ -53,9 +54,14 @@ namespace PromiedosApi.Application.Services
             };
 
             await _tournamentRepository.AddAsync(tournament);
+            
+            tournamentDto.Id = (int)tournament.Id;
 
             return tournamentDto;
         }
+
+
+
 
         public async Task UpdateTournamentAsync(TournamentDto tournamentDto)
         {

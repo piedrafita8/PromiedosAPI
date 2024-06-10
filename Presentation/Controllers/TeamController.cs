@@ -40,18 +40,14 @@ namespace PromiedosApi.Presentation.Controllers
         public async Task<ActionResult<TeamDto>> PostTeam([FromBody] TeamDto teamDto)
         {
             var newTeam = await _teamService.CreateTeamAsync(teamDto);
-            if (newTeam == null)
-            {
-                return BadRequest("City or Stadium does not exist.");
-            }
-            return CreatedAtAction(nameof(GetTeam), new { id = newTeam.CityId }, newTeam);
+            return CreatedAtAction(nameof(GetTeam), new { id = newTeam.Id }, newTeam);
         }
 
         // PUT: api/Team/5
         [HttpPut("{id}")]
         public async Task<IActionResult> PutTeam(long id, [FromBody] TeamDto teamDto)
         {
-            if (id != teamDto.CityId)
+            if (id != teamDto.Id)
             {
                 return BadRequest();
             }

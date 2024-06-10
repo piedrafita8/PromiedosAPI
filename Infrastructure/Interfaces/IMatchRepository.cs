@@ -2,12 +2,9 @@ using PromiedosApi.Domain.Models;
 
 namespace PromiedosApi.Infrastructure.Interfaces
 {
-    public interface IMatchRepository
+    public interface IMatchRepository : IGenericRepository<Match>
     {
-        Task<IEnumerable<Match>> GetAllAsync();
-        Task<Match> GetByIdAsync(long id);
-        Task AddAsync(Match match);
-        Task UpdateAsync(Match match);
-        Task DeleteAsync(long id);
+        Task<IEnumerable<Match>> GetAllWithDetailsAsync();
+        Task<Match?> GetByIdWithDetailsAsync(long id);
     }
 }

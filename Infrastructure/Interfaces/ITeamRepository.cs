@@ -2,12 +2,9 @@ using PromiedosApi.Domain.Models;
 
 namespace PromiedosApi.Infrastructure.Interfaces
 {
-    public interface ITeamRepository
+    public interface ITeamRepository : IGenericRepository<Team>
     {
-        Task<IEnumerable<Team>> GetAllAsync();
-        Task<Team> GetByIdAsync(long id);
-        Task AddAsync(Team team);
-        Task UpdateAsync(Team team);
-        Task DeleteAsync(long id);
+        Task<IEnumerable<Team>> GetAllWithDetailsAsync();
+        Task<Team?> GetByIdWithDetailsAsync(long id);
     }
 }

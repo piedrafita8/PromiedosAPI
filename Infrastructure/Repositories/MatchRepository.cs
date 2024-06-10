@@ -1,54 +1,50 @@
 using Microsoft.EntityFrameworkCore;
-using PromiedosApi.Infrastructure.Interfaces;
 using PromiedosApi.Domain.Models;
 using PromiedosApi.Infrastructure.Context;
+using PromiedosApi.Infrastructure.Exceptions;
+using PromiedosApi.Infrastructure.Interfaces;
 
 namespace PromiedosApi.Infrastructure.Repositories
 {
-    public class MatchRepository : IMatchRepository
+    public class MatchRepository : GenericRepository<Match>, IMatchRepository
     {
         private readonly PromiedosContext _context;
 
-        public MatchRepository(PromiedosContext context)
+        public MatchRepository(PromiedosContext context) : base(context)
         {
             _context = context;
         }
 
-        public async Task<IEnumerable<Match>> GetAllAsync()
+        public async Task<IEnumerable<Match>> GetAllWithDetailsAsync()
         {
-            return await _context.Matches
-                .Include(m => m.HomeTeam)
-                .Include(m => m.AwayTeam)
-                .Include(m => m.Tournament)
-                .ToListAsync();
+            try
+            {
+                return await _context.Matches
+                    .Include(m => m.HomeTeam)
+                    .Include(m => m.AwayTeam)
+                    .Include(m => m.Tournament)
+                    .ToListAsync();
+            }
+            catch (Exception e)
+            {
+                throw new PromiedosApiException(e.Message);
+            }
         }
 
-        public async Task<Match> GetByIdAsync(long id)
+        public async Task<Match?> GetByIdWithDetailsAsync(long id)
         {
-            return await _context.Matches
-                .Include(m => m.HomeTeam)
-                .Include(m => m.AwayTeam)
-                .Include(m => m.Tournament)
-                .FirstOrDefaultAsync(m => m.Id == id);
-        }
-
-        public async Task AddAsync(Match match)
-        {
-            await _context.Matches.AddAsync(match);
-            await _context.SaveChangesAsync();
-        }
-
-        public async Task UpdateAsync(Match match)
-        {
-            _context.Matches.Update(match);
-            await _context.SaveChangesAsync();
-        }
-
-        public async Task DeleteAsync(long id)
-        {
-            var match = await _context.Matches.FindAsync(id);
-            _context.Matches.Remove(match);
-            await _context.SaveChangesAsync();
+            try
+            {
+                return await _context.Matches
+                    .Include(m => m.HomeTeam)
+                    .Include(m => m.AwayTeam)
+                    .Include(m => m.Tournament)
+                    .FirstOrDefaultAsync(m => m.Id == id);
+            }
+            catch (Exception e)
+            {
+                throw new PromiedosApiException(e.Message);
+            }
         }
     }
 }

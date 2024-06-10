@@ -1,7 +1,7 @@
 using PromiedosApi.Application.Dtos;
 using PromiedosApi.Application.Interfaces;
-using PromiedosApi.Infrastructure.Interfaces;
 using PromiedosApi.Domain.Models;
+using PromiedosApi.Infrastructure.Interfaces;
 
 namespace PromiedosApi.Application.Services
 {
@@ -20,7 +20,7 @@ namespace PromiedosApi.Application.Services
 
         public async Task<IEnumerable<MatchDto>> GetMatchesAsync()
         {
-            var matches = await _matchRepository.GetAllAsync();
+            var matches = await _matchRepository.GetAllWithDetailsAsync();
             return matches.Select(m => new MatchDto
             {
                 HomeTeamId = m.HomeTeam.Id,
@@ -31,9 +31,9 @@ namespace PromiedosApi.Application.Services
             }).ToList();
         }
 
-        public async Task<MatchDto> GetMatchByIdAsync(long id)
+        public async Task<MatchDto?> GetMatchByIdAsync(long id)
         {
-            var match = await _matchRepository.GetByIdAsync(id);
+            var match = await _matchRepository.GetByIdWithDetailsAsync(id);
             if (match == null)
             {
                 return null;
@@ -57,7 +57,7 @@ namespace PromiedosApi.Application.Services
 
             if (homeTeam == null || awayTeam == null || tournament == null)
             {
-                return null;
+                throw new Exception("Equipos o torneo especificados no existen.");
             }
 
             var match = new Match
@@ -83,17 +83,14 @@ namespace PromiedosApi.Application.Services
 
         public async Task UpdateMatchAsync(MatchDto matchDto)
         {
-            var match = await _matchRepository.GetByIdAsync(matchDto.HomeTeamId); // Aquí parece que debería ser un id, no HomeTeamId
+            var match = await _matchRepository.GetByIdAsync(matchDto.HomeTeamId);
             if (match == null)
             {
-                return;
+                throw new Exception("Match not found");
             }
 
             match.HomeGoals = matchDto.HomeGoals;
             match.AwayGoals = matchDto.AwayGoals;
-            match.HomeTeam = await _teamRepository.GetByIdAsync(matchDto.HomeTeamId);
-            match.AwayTeam = await _teamRepository.GetByIdAsync(matchDto.AwayTeamId);
-            match.Tournament = await _tournamentRepository.GetByIdAsync(matchDto.TournamentId);
 
             await _matchRepository.UpdateAsync(match);
         }

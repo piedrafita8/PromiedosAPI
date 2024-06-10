@@ -20,44 +20,82 @@ namespace PromiedosApi.Application.Services
 
         public async Task<IEnumerable<TeamDto>> GetTeamsAsync()
         {
-            var teams = await _teamRepository.GetAllAsync();
-            return teams.Select(t => new TeamDto { TeamName = t.TeamName, CityId = t.City.Id, StadiumId = t.Stadium.Id }).ToList();
+            var teams = await _teamRepository.GetAllWithDetailsAsync();
+            return teams.Select(t => new TeamDto
+            {
+                Id = t.Id,
+                TeamName = t.TeamName,
+                CityId = t.City.Id,
+                StadiumId = t.Stadium.Id
+            }).ToList();
         }
 
-        public async Task<TeamDto> GetTeamByIdAsync(long id)
+        public async Task<TeamDto?> GetTeamByIdAsync(long id)
         {
-            var team = await _teamRepository.GetByIdAsync(id);
+            var team = await _teamRepository.GetByIdWithDetailsAsync(id);
             if (team == null)
             {
                 return null;
             }
 
-            return new TeamDto { TeamName = team.TeamName, CityId = team.City.Id, StadiumId = team.Stadium.Id };
+            return new TeamDto
+            {
+                Id = team.Id,
+                TeamName = team.TeamName,
+                CityId = team.City.Id,
+                StadiumId = team.Stadium.Id
+            };
         }
 
         public async Task<TeamDto> CreateTeamAsync(TeamDto teamDto)
         {
             var city = await _cityRepository.GetByIdAsync(teamDto.CityId);
             var stadium = await _stadiumRepository.GetByIdAsync(teamDto.StadiumId);
+
             if (city == null || stadium == null)
             {
-                return null;
+                throw new Exception("City or Stadium specified does not exist.");
             }
 
-            var team = new Team { TeamName = teamDto.TeamName, City = city, Stadium = stadium };
+            var team = new Team
+            {
+                Id = teamDto.Id,
+                TeamName = teamDto.TeamName,
+                City = city,
+                Stadium = stadium
+            };
+
             await _teamRepository.AddAsync(team);
-            return new TeamDto { TeamName = team.TeamName, CityId = team.City.Id, StadiumId = team.Stadium.Id };
+
+            return new TeamDto
+            {
+                Id = team.Id,
+                TeamName = team.TeamName,
+                CityId = team.City.Id,
+                StadiumId = team.Stadium.Id
+            };
         }
 
         public async Task UpdateTeamAsync(TeamDto teamDto)
         {
-            var team = await _teamRepository.GetByIdAsync(teamDto.CityId);
+            var team = await _teamRepository.GetByIdAsync(teamDto.Id);
             if (team == null)
             {
-                return;
+                throw new Exception("Team not found");
+            }
+
+            var city = await _cityRepository.GetByIdAsync(teamDto.CityId);
+            var stadium = await _stadiumRepository.GetByIdAsync(teamDto.StadiumId);
+
+            if (city == null || stadium == null)
+            {
+                throw new Exception("City or Stadium specified does not exist.");
             }
 
             team.TeamName = teamDto.TeamName;
+            team.City = city;
+            team.Stadium = stadium;
+
             await _teamRepository.UpdateAsync(team);
         }
 
