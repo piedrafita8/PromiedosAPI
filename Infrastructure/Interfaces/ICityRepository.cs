@@ -2,12 +2,8 @@ using PromiedosApi.Domain.Models;
 
 namespace PromiedosApi.Infrastructure.Interfaces
 {
-    public interface ICityRepository
+    public interface ICityRepository : IGenericRepository<City>
     {
-        Task<IEnumerable<City>> GetAllAsync();
-        Task<City?> GetByIdAsync(long id);
-        Task AddAsync(City city);
-        Task UpdateAsync(City city);
-        Task DeleteAsync(long id);
+        
     }
 }
