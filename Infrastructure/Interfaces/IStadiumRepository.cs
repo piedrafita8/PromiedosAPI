@@ -2,12 +2,8 @@ using PromiedosApi.Domain.Models;
 
 namespace PromiedosApi.Infrastructure.Interfaces
 {
-    public interface IStadiumRepository
+    public interface IStadiumRepository : IGenericRepository<Stadium>
     {
-        Task<IEnumerable<Stadium>> GetAllAsync();
-        Task<Stadium> GetByIdAsync(long id);
-        Task AddAsync(Stadium stadium);
-        Task UpdateAsync(Stadium stadium);
-        Task DeleteAsync(long id);
+       
     }
 }

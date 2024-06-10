@@ -1,8 +1,6 @@
 using Microsoft.AspNetCore.Mvc;
 using PromiedosApi.Application.Dtos;
 using PromiedosApi.Application.Interfaces;
-using System.Collections.Generic;
-using System.Threading.Tasks;
 
 namespace PromiedosApi.Presentation.Controllers
 {

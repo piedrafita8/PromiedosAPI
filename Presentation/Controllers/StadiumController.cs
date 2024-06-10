@@ -1,116 +1,84 @@
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
-using PromiedosApi.Domain.Models;
-using PromiedosApi.Infrastructure.Context;
 using PromiedosApi.Application.Dtos;
+using PromiedosApi.Application.Interfaces;
+using System.Collections.Generic;
+using System.Threading.Tasks;
 
 namespace PromiedosApi.Controllers
 {
     [Route("Stadium")]
+    [ApiController]
     public class StadiumController : ControllerBase
     {
-        private readonly PromiedosContext _context;
+        private readonly IStadiumService _stadiumService;
 
-        public StadiumController(PromiedosContext context)
+        public StadiumController(IStadiumService stadiumService)
         {
-            _context = context;
+            _stadiumService = stadiumService;
         }
 
         // GET: Stadium
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<Stadium>>> GetStadiums()
+        public async Task<ActionResult<IEnumerable<StadiumDto>>> GetStadiums()
         {
-            return await _context.Stadiums.ToListAsync();
+            var stadiums = await _stadiumService.GetStadiumsAsync();
+            return Ok(stadiums);
         }
 
         // GET: Stadium/5
         [HttpGet("{id}")]
-        public async Task<ActionResult<Stadium>> GetStadium(long id)
+        public async Task<ActionResult<StadiumDto>> GetStadium(long id)
         {
-            var stadium = await _context.Stadiums.FindAsync(id);
-
+            var stadium = await _stadiumService.GetStadiumByIdAsync(id);
             if (stadium == null)
             {
                 return NotFound();
             }
 
-            return stadium;
-        }
-
-        // PUT: Stadium/5
-        [HttpPut("{id}")]
-        public async Task<ActionResult<Stadium>> PutStadium(long id, Stadium stadium)
-        {
-            if (id != stadium.Id)
-            {
-                return BadRequest();
-            }
-
-            _context.Entry(stadium).State = EntityState.Modified;
-
-            try
-            {
-                await _context.SaveChangesAsync();
-            }
-            catch (DbUpdateConcurrencyException)
-            {
-                if (!StadiumExists(id))
-                {
-                    return NotFound();
-                }
-                else
-                {
-                    throw;
-                }
-            }
-
-            return NoContent();
+            return Ok(stadium);
         }
 
         // POST: Stadium
         [HttpPost]
-        public async Task<ActionResult<Stadium>> PostStadium([FromBody] StadiumDto stadiumDto)
+        public async Task<ActionResult<StadiumDto>> PostStadium([FromBody] StadiumDto stadiumDto)
         {
-            var existingCity = await _context.Cities.FindAsync(stadiumDto.CityId);
-
-            if (existingCity == null)
+            try
             {
-                return BadRequest("La ciudad especificada no existe.");
+                var createdStadium = await _stadiumService.CreateStadiumAsync(stadiumDto);
+                return CreatedAtAction(nameof(GetStadium), new { id = createdStadium.Id }, createdStadium);
+            }
+            catch (KeyNotFoundException ex)
+            {
+                return BadRequest(ex.Message);
+            }
+        }
+
+        // PUT: Stadium/5
+        [HttpPut("{id}")]
+        public async Task<IActionResult> PutStadium(long id, [FromBody] StadiumDto stadiumDto)
+        {
+            if (id != stadiumDto.Id)
+            {
+                return BadRequest();
             }
 
-            var stadiumsCount = await _context.Stadiums.CountAsync();
-            var stadium = new Stadium
+            try
             {
-                StadiumName = stadiumDto.StadiumName,
-                City = existingCity,
-                Id = stadiumsCount + 1,
-            };
-            
-            _context.Stadiums.Add(stadium);
-            await _context.SaveChangesAsync();
-            
-            return CreatedAtAction(nameof(GetStadium), new { id = stadium.Id }, stadium);
+                await _stadiumService.UpdateStadiumAsync(stadiumDto);
+                return NoContent();
+            }
+            catch (KeyNotFoundException ex)
+            {
+                return BadRequest(ex.Message);
+            }
         }
 
         // DELETE: Stadium/5
         [HttpDelete("{id}")]
-        public async Task<ActionResult> DeleteStadium(long id)
+        public async Task<IActionResult> DeleteStadium(long id)
         {
-            var stadium = await _context.Stadiums.FindAsync(id);
-            if (stadium == null)
-            {
-                return NotFound();
-            }
-
-            _context.Stadiums.Remove(stadium);
-            await _context.SaveChangesAsync();
-
+            await _stadiumService.DeleteStadiumAsync(id);
             return NoContent();
-        }
-
-        private bool StadiumExists(long id)
-        {
-            return _context.Stadiums.Any(e => e.Id == id);
         }
     }
 }

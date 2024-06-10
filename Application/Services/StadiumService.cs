@@ -1,8 +1,10 @@
 using PromiedosApi.Application.Dtos;
 using PromiedosApi.Application.Interfaces;
-using PromiedosApi.Domain.Models;
 using PromiedosApi.Infrastructure.Interfaces;
-
+using PromiedosApi.Domain.Models;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
 
 namespace PromiedosApi.Application.Services
 {
@@ -17,10 +19,10 @@ namespace PromiedosApi.Application.Services
             _cityRepository = cityRepository;
         }
 
-        public async Task<IEnumerable<StadiumDto>> GetStadiumsAsync()
+        public async Task<IEnumerable<Stadium>> GetStadiumsAsync()
         {
             var stadiums = await _stadiumRepository.GetAllAsync();
-            return stadiums.Select(s => new StadiumDto { StadiumName = s.StadiumName, CityId = s.City.Id }).ToList();
+            return stadiums;
         }
 
         public async Task<StadiumDto> GetStadiumByIdAsync(long id)
@@ -31,31 +33,53 @@ namespace PromiedosApi.Application.Services
                 return null;
             }
 
-            return new StadiumDto { StadiumName = stadium.StadiumName, CityId = stadium.City.Id };
+            return new StadiumDto 
+            { 
+                Id = stadium.Id, 
+                StadiumName = stadium.StadiumName, 
+                CityId = stadium.City.Id,
+            };
         }
 
         public async Task<StadiumDto> CreateStadiumAsync(StadiumDto stadiumDto)
         {
-            var city = await _cityRepository.GetByIdAsync(stadiumDto.CityId);
-            if (city == null)
+            var existingCity = await _cityRepository.GetByIdAsync(stadiumDto.CityId);
+            if (existingCity == null)
             {
-                return null;
+                throw new KeyNotFoundException("La ciudad especificada no existe.");
             }
 
-            var stadium = new Stadium { StadiumName = stadiumDto.StadiumName, City = city };
+            var stadium = new Stadium
+            {
+                Id = stadiumDto.Id,
+                StadiumName = stadiumDto.StadiumName,
+                City = existingCity
+            };
+
             await _stadiumRepository.AddAsync(stadium);
-            return new StadiumDto { StadiumName = stadium.StadiumName, CityId = stadium.City.Id };
+            return new StadiumDto 
+            { 
+                Id = stadium.Id, 
+                StadiumName = stadium.StadiumName, 
+                CityId = stadium.City.Id
+            };
         }
 
         public async Task UpdateStadiumAsync(StadiumDto stadiumDto)
         {
-            var stadium = await _stadiumRepository.GetByIdAsync(stadiumDto.CityId);
-            if (stadium == null)
+            var existingCity = await _cityRepository.GetByIdAsync(stadiumDto.CityId);
+            if (existingCity == null)
             {
-                return;
+                throw new KeyNotFoundException("La ciudad especificada no existe.");
             }
 
-            stadium.StadiumName = stadiumDto.StadiumName;
+            var stadium = new Stadium
+            {
+                Id = stadiumDto.Id,
+                StadiumName = stadiumDto.StadiumName,
+                City = existingCity
+            };
+
             await _stadiumRepository.UpdateAsync(stadium);
         }
 
